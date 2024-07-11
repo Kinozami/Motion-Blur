@@ -1,0 +1,29 @@
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+
+local camera = Workspace.CurrentCamera
+local blurAmount = 10
+local blurAmplifier = 5
+local lastVector = camera.CFrame.LookVector
+
+local motionBlur = Instance.new("BlurEffect")
+motionBlur.Parent = camera
+
+local function updateMotionBlur()
+    local currentCamera = Workspace.CurrentCamera
+    if currentCamera ~= camera then
+        camera = currentCamera
+        motionBlur.Parent = camera
+    end
+end
+
+Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(updateMotionBlur)
+
+RunService.Heartbeat:Connect(function()
+    local currentCamera = Workspace.CurrentCamera
+    if currentCamera then
+        local magnitude = (currentCamera.CFrame.LookVector - lastVector).magnitude
+        motionBlur.Size = math.abs(magnitude) * blurAmount * blurAmplifier / 2
+        lastVector = currentCamera.CFrame.LookVector
+    end
+end)
